@@ -9,6 +9,14 @@
 %  For the purpose of completing the assignment, you do not need to
 %  change the code in this file. 
 %
+
+%% =====================================================================
+% STEP -1: Add path dependencies
+
+addpath ../dependencies/
+addpath ../dependencies/minFunc/
+addpath ../dependencies/mnist/
+
 %%======================================================================
 %% STEP 0: Here we provide the relevant parameters values that will
 %  allow your sparse autoencoder to get good filters; you do not need to 
@@ -103,7 +111,6 @@ disp(diff); % Should be small. In our implementation, these values are
 theta = initializeParameters(hiddenSize, visibleSize);
 
 %  Use minFunc to minimize the function
-addpath minFunc/
 options.Method = 'lbfgs'; % Here, we use L-BFGS to optimize our cost
                           % function. Generally, for minFunc to work, you
                           % need a function pointer with two outputs: the
@@ -111,7 +118,6 @@ options.Method = 'lbfgs'; % Here, we use L-BFGS to optimize our cost
                           % sparseAutoencoderCost.m satisfies this.
 options.maxIter = 400;	  % Maximum number of iterations of L-BFGS to run 
 options.display = 'on';
-
 
 [opttheta, cost] = minFunc( @(p) sparseAutoencoderCost(p, ...
                                    visibleSize, hiddenSize, ...
@@ -126,5 +132,3 @@ W1 = reshape(opttheta(1:hiddenSize*visibleSize), hiddenSize, visibleSize);
 display_network(W1', 12); 
 
 print -djpeg weights.jpg   % save the visualization to a file 
-
-

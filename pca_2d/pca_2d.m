@@ -1,5 +1,12 @@
 close all
 
+%% =====================================================================
+% STEP -1: Add path dependencies
+
+addpath ../dependencies/
+addpath ../dependencies/minFunc/
+addpath ../dependencies/mnist/
+
 %%================================================================
 %% Step 0: Load data
 %  We have provided the code to load data from pcaData.txt into x.

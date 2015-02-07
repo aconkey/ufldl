@@ -1,6 +1,6 @@
-% Change the filenames if you've saved the files under different names
-% On some platforms, the files might be saved as 
-% train-images.idx3-ubyte / train-labels.idx1-ubyte
+addpath ../dependencies/minFunc/
+addpath ../dependencies/mnist/
+
 images = loadMNISTImages('train-images.idx3-ubyte');
 labels = loadMNISTLabels('train-labels.idx1-ubyte');
  
@@ -24,7 +24,6 @@ display_network(patches(:,1:100))
 theta = initializeParameters(hiddenSize, visibleSize);
 
 %  Use minFunc to minimize the function
-addpath minFunc/
 options.Method = 'lbfgs'; % Here, we use L-BFGS to optimize our cost
                           % function. Generally, for minFunc to work, you
                           % need a function pointer with two outputs: the
@@ -32,7 +31,6 @@ options.Method = 'lbfgs'; % Here, we use L-BFGS to optimize our cost
                           % sparseAutoencoderCost.m satisfies this.
 options.maxIter = 400;	  % Maximum number of iterations of L-BFGS to run 
 options.display = 'on';
-
 
 [opttheta, cost] = minFunc( @(p) sparseAutoencoderCost(p, ...
                                    visibleSize, hiddenSize, ...
@@ -47,3 +45,4 @@ W1 = reshape(opttheta(1:hiddenSize*visibleSize), hiddenSize, visibleSize);
 display_network(W1',12); 
 
 print -djpeg weights.jpg   % save the visualization to a file 
+
