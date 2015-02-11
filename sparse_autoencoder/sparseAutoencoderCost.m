@@ -1,12 +1,12 @@
 function [cost,grad] = sparseAutoencoderCost(theta, num_in, num_hid, ...
-                                             lambda, rho, beta, data)
+                                               lambda, rho, beta, data)
 
 % num_in:   the number of input units (probably 64) 
 % num_hid:  the number of hidden units (probably 25) 
 % lambda:   weight decay parameter
 % rho:      the desired average activation for the hidden units
 % beta:     weight of sparsity penalty term
-% data:     Our 64x10000 matrix containing the training data.  So, data(:,i) is the i-th training example. 
+% data:     Our 64x10000 training data.  So, data(:,i) is the i-th training example. 
   
 % The input theta is a vector (because minFunc expects the parameters to be a vector). 
 % We first convert theta to the (W1, W2, b1, b2) matrix/vector format, so that this 
@@ -34,17 +34,10 @@ b2 = theta(2*num_hid*num_in+num_hid+1:end);
 % 
 
 m = size(data,2); % number of training examples
-
-% pre-allocate:
-%deltaW1 = zeros(size(W1));
-%deltaW2 = zeros(size(W2));
-%deltab1 = zeros(size(b1,m));
-%deltab2 = zeros(size(b2,m));
-
-a1 = data; y = data; % autoencoder: inputs = targets
+                  %a1 = data; y = data; % autoencoder: inputs = targets
 
 % make a forward pass in order to compute average activations:
-a2 = sigmoid(W1 * a1 + repmat(b1,1,m));
+a2 = sigmoid(W1 * data + repmat(b1,1,m));
 a3 = sigmoid(W2 * a2 + repmat(b2,1,m));
 
 % compute sparsity term:
@@ -52,15 +45,10 @@ rho_hat = (1./m) * sum(a2,2);
 sparse_delta = -(rho ./ rho_hat) + ((1 - rho) ./ (1-rho_hat));
 
 % backpropagation:
-delta3 = -(y - a3) .* a3 .* (1 - a3); 
+delta3 = -(data - a3) .* a3 .* (1 - a3); 
 delta2 = ((W2' * delta3) + beta .* repmat(sparse_delta,1,m)) .* a2 .* (1 - a2);
-    
-%deltaW1 = deltaW1 + (delta2 * a1');
-%deltaW2 = deltaW2 + (delta3 * a2');
-%deltab1 = deltab1 + delta2;
-%deltab2 = deltab2 + delta3; 
 
-deltaW1 = delta2 * a1';
+deltaW1 = delta2 * data';
 deltaW2 = delta3 * a2';
 deltab1 = sum(delta2,2);
 deltab2 = sum(delta3,2); 
@@ -71,7 +59,7 @@ W2grad = ((1./m) * deltaW2) + (lambda * W2);
 b1grad = (1./m) * deltab1;
 b2grad = (1./m) * deltab2;
 
-JTerm = (1./m) * sum((1./2) * sum((a3 - y).^2)); 
+JTerm = (1./m) * sum((1./2) * sum((a3 - data).^2)); 
 regTerm = (lambda ./ 2) * (sum(sum(W1.^2)) + sum(sum(W2.^2)));
 KLTerm = beta .* sum((rho * log(rho./rho_hat)) + ((1 - rho) * log((1 - rho)./(1 - rho_hat))));
 cost = JTerm + regTerm + KLTerm;

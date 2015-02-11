@@ -1,21 +1,13 @@
-%% CS294A/CS294W Stacked Autoencoder Exercise
+%% Stacked Autoencoder
 
 %  Instructions
 %  ------------
 % 
-%  This file contains code that helps you get started on the
-%  sstacked autoencoder exercise. You will need to complete code in
-%  stackedAECost.m
-%  You will also need to have implemented sparseAutoencoderCost.m and 
-%  softmaxCost.m from previous exercises. You will need the initializeParameters.m
-%  loadMNISTImages.m, and loadMNISTLabels.m files from previous exercises.
-%  
-%  For the purpose of completing the assignment, you do not need to
-%  change the code in this file. 
+%  Complete code in stackedAECost.m
 %
 
 %% =====================================================================
-% STEP -1: Add path dependencies
+%% STEP -1: Add path dependencies                                       
 addpath ../dependencies/
 addpath ../dependencies/minFunc/
 addpath ../dependencies/mnist/
@@ -24,7 +16,7 @@ addpath ../softmax/
 addpath ../stl_exercise/
 
 %%======================================================================
-%% STEP 0: Here we provide the relevant parameters values that will
+%% STEP 0: Here we provide the relevant parameters values that will     
 %  allow your sparse autoencoder to get good filters; you do not need to 
 %  change the parameters below.
 
@@ -33,13 +25,11 @@ numClasses = 10;
 hiddenSizeL1 = 200;    % Layer 1 Hidden Size
 hiddenSizeL2 = 200;    % Layer 2 Hidden Size
 sparsityParam = 0.1;   % desired average activation of the hidden units.
-                       % (This was denoted by the Greek alphabet rho, which looks like a lower-case "p",
-		               %  in the lecture notes). 
 lambda = 3e-3;         % weight decay parameter       
 beta = 3;              % weight of sparsity penalty term       
 
 %%======================================================================
-%% STEP 1: Load data from the MNIST database
+%% STEP 1: Load data from the MNIST database                            
 %
 %  This loads our training data from the MNIST database files.
 
@@ -47,40 +37,37 @@ beta = 3;              % weight of sparsity penalty term
 trainData = loadMNISTImages('mnist/train-images.idx3-ubyte');
 trainLabels = loadMNISTLabels('mnist/train-labels.idx1-ubyte');
 
-trainLabels(trainLabels == 0) = 10; % Remap 0 to 10 since our labels need to start from 1
+% Remap 0 to 10 since our labels need to start from 1:
+trainLabels(trainLabels == 0) = 10; 
 
 %%======================================================================
-%% STEP 2: Train the first sparse autoencoder
-%  This trains the first sparse autoencoder on the unlabelled STL training
-%  images.
-%  If you've correctly implemented sparseAutoencoderCost.m, you don't need
-%  to change anything here.
+%% STEP 2: Train the first sparse autoencoder                           
+%  Train the first sparse autoencoder on the unlabelled STL training images.
 
-
-% Randomly initialize the parameters
+% Randomly initialize the parameters:
 sae1Theta = initializeParameters(hiddenSizeL1, inputSize);
 
 %% ---------------------- YOUR CODE HERE  ---------------------------------
 %  Instructions: Train the first layer sparse autoencoder, this layer has
-%                an hidden size of "hiddenSizeL1"
+%                a hidden size of "hiddenSizeL1"
 %                You should store the optimal parameters in sae1OptTheta
 
-options.Method = 'lbfgs';
-options.maxIter = 400;
-options.display = 'on';
+%options.Method = 'lbfgs';
+%options.maxIter = 400;
+%options.display = 'on';
 
-[sae1OptTheta, cost] = minFunc( @(p) sparseAutoencoderCost(p, ...
-                                   inputSize, hiddenSizeL1, ...
-                                   lambda, sparsityParam, ...
-                                   beta, trainData), ...
-                                   theta, options);
+%[sae1OptTheta, cost] = minFunc( @(p) sparseAutoencoderCost(p, ...
+%                                   inputSize, hiddenSizeL1, ...
+%                                   lambda, sparsityParam, ...
+%                                   beta, trainData), ...
+%                                   sae1Theta, options);
+
+% LOAD data instead of running code above; memory issues: 
+load sae1OptTheta.mat
 
 %%======================================================================
-%% STEP 2: Train the second sparse autoencoder
-%  This trains the second sparse autoencoder on the first autoencoder
-%  featurse.
-%  If you've correctly implemented sparseAutoencoderCost.m, you don't need
-%  to change anything here.
+%% STEP 2: Train the second sparse autoencoder                          
+%  Train the second sparse autoencoder on the first autoencoder features.
 
 [sae1Features] = feedForwardAutoencoder(sae1OptTheta, hiddenSizeL1, ...
                                         inputSize, trainData);
@@ -95,20 +82,19 @@ sae2Theta = initializeParameters(hiddenSizeL2, hiddenSizeL1);
 %
 %                You should store the optimal parameters in sae2OptTheta
 
+%options.Method = 'lbfgs';
+%options.maxIter = 400;
+%options.display = 'on';
+
+%[sae2OptTheta, cost] = minFunc( @(p) sparseAutoencoderCost(p, ...
+%                                   hiddenSizeL1, hiddenSizeL2, ...
+%                                   lambda, sparsityParam, ...
+%                                   beta, sae1Features), ...
+%                                   sae2Theta, options);
 
 
-
-
-
-
-
-
-
-
-
-
-% -------------------------------------------------------------------------
-
+% LOAD DATA instead of running code above; memory can't handle it:
+load sae2OptTheta.mat
 
 %%======================================================================
 %% STEP 3: Train the softmax classifier

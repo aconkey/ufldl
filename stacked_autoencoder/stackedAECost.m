@@ -28,7 +28,7 @@ stack = params2stack(theta(hiddenSize*numClasses+1:end), netconfig);
 % You will need to compute the following gradients
 softmaxThetaGrad = zeros(size(softmaxTheta));
 stackgrad = cell(size(stack));
-for d = 1:numel(stack)
+for d = 1 : numel(stack)
     stackgrad{d}.w = zeros(size(stack{d}.w));
     stackgrad{d}.b = zeros(size(stack{d}.b));
 end
