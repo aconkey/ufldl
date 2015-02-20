@@ -1,3 +1,4 @@
+
 function [cost,grad] = sparseAutoencoderCost(theta, num_in, num_hid, ...
                                                lambda, rho, beta, data)
 
