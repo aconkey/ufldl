@@ -26,12 +26,11 @@ stack = params2stack(theta(hiddenSize*numClasses+1:end), netconfig);
 
 m = size(x,2);
 
-a2 = sigmoid((stack{1}.w * x) + repmat(stack{1}.b,1,m));
-a3 = sigmoid((stack{2}.w * a2) + repmat(stack{2}.b,1,m));
+a2 = sigmoid(bsxfun(@plus, stack{1}.w * x, stack{1}.b));
+a3 = sigmoid(bsxfun(@plus, stack{2}.w * a2, stack{2}.b));
 
 softmaxTheta_a3 = softmaxTheta * a3;
-softmaxTheta_a3 = bsxfun(@minus, softmaxTheta_a3, max(softmaxTheta_a3, ...
-                                                  [], 1));
+softmaxTheta_a3 = bsxfun(@minus, softmaxTheta_a3, max(softmaxTheta_a3, [], 1));
 a4 = exp(softmaxTheta_a3);
 a4 = bsxfun(@rdivide, a4, sum(a4));
 

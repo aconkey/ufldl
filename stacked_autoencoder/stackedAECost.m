@@ -61,12 +61,12 @@ groundTruth = full(sparse(labels, 1:m, 1));
 %                match exactly that of the size of the matrices in stack.
 %
 
-rho = 0.05;
-beta = 3;
+%rho = 0.05;
+%beta = 3;
 
 % forward pass: 
-a2 = sigmoid(stack{1}.w * data + repmat(stack{1}.b,1,m));
-a3 = sigmoid(stack{2}.w * a2 + repmat(stack{2}.b,1,m));
+a2 = sigmoid(bsxfun(@plus, stack{1}.w * data, stack{1}.b));
+a3 = sigmoid(bsxfun(@plus, stack{2}.w * a2, stack{2}.b));
 
 % sparsity terms:
 rho_hat = (1./m) * sum(a2,2);
@@ -74,18 +74,16 @@ sparse_delta = -(rho ./ rho_hat) + ((1 - rho) ./ (1-rho_hat));
 
 % softmax:
 softmaxTheta_a3 = softmaxTheta * a3;
-softmaxTheta_a3 = bsxfun(@minus, softmaxTheta_a3, max(softmaxTheta_a3, ...
-                                                  [], 1));
+softmaxTheta_a3 = bsxfun(@minus, softmaxTheta_a3, max(softmaxTheta_a3, [], 1));
 a4 = exp(softmaxTheta_a3);
 a4 = bsxfun(@rdivide, a4, sum(a4));
 
 % softmaxTheta:
-softmaxThetaGrad = (-(1./m) * (groundTruth - a4) * a3') + (lambda * ...
-                                                  softmaxTheta);
+softmaxThetaGrad = (-(1./m) * (groundTruth - a4) * a3') + (lambda * softmaxTheta);
 
 % backprop: 
 delta3 = -(softmaxTheta' * (groundTruth - a4)) .* a3 .* (1 - a3);
-delta2 = ((stack{2}.w' * delta3) + beta .* repmat(sparse_delta,1,m)) .* a2 .* (1 -a2);
+delta2 = bsxfun(@plus, stack{2}.w' * delta3, beta .* sparse_delta) .* a2 .* (1 -a2);
 
 deltaW1 = delta2 * data';
 deltaW2 = delta3 * a2';
@@ -99,10 +97,10 @@ stackgrad{2}.b = (1./m) * deltab2;
 
 JTerm = (-(1./m) * sum(sum(groundTruth .* log(a4))));
 weight_decay = (lambda / 2) * sum(sum(softmaxTheta .^ 2));
-regTerm = (lambda ./ 2) * (sum(sum(stack{1}.w .^2)) + sum(sum(stack{2}.w ...
-                                                  .^2)));
+regTerm = (lambda ./ 2) * (sum(sum(stack{1}.w .^2)) + sum(sum(stack{2}.w .^2)));
 KLTerm = beta .* sum((rho * log(rho./rho_hat)) + ((1 - rho) * log((1 - rho)./(1 - rho_hat))));
 cost = JTerm + weight_decay + regTerm + KLTerm;
+
 % -------------------------------------------------------------------------
 
 %% Roll gradient vector
